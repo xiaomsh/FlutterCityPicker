@@ -10,9 +10,11 @@ import 'http/http_util.dart';
 import 'provider/theme_provider.dart';
 import 'view/item_text.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -33,7 +35,7 @@ class MyApp extends StatelessWidget {
                 maxWidth: MediaQuery.of(context).size.width,
               )),
             ),
-            home: HomeWidget(),
+            home: const HomeWidget(),
           );
         },
       ),
@@ -42,6 +44,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeWidget extends StatefulWidget {
+  const HomeWidget({super.key});
+
   @override
   HomeWidgetState createState() => HomeWidgetState();
 }
@@ -78,7 +82,7 @@ class HomeWidgetState extends State<HomeWidget>
 
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
   }
 
@@ -93,7 +97,7 @@ class HomeWidgetState extends State<HomeWidget>
       corner: _corner,
       backgroundColor: _backgroundColor,
       paddingLeft: 15,
-      titleWidget: Text(
+      titleWidget: const Text(
         '请选择地址',
         style: TextStyle(
           color: Colors.black54,
@@ -102,7 +106,7 @@ class HomeWidgetState extends State<HomeWidget>
         ),
       ),
       selectText: "请选择",
-      closeWidget: Icon(Icons.close),
+      closeWidget: const Icon(Icons.close),
       tabHeight: 40,
       showTabIndicator: _showTabIndicator,
       tabPadding: 15,
@@ -115,19 +119,20 @@ class HomeWidgetState extends State<HomeWidget>
       itemHeadBackgroundColor: _backgroundColor,
       itemHeadLineColor: Colors.black,
       itemHeadLineHeight: 0.1,
-      itemHeadTextStyle: TextStyle(fontSize: 15, color: Colors.black),
+      itemHeadTextStyle: const TextStyle(fontSize: 15, color: Colors.black),
       itemHeight: 40,
       indexBarWidth: 28,
       indexBarItemHeight: 20,
       indexBarBackgroundColor: Colors.black12,
-      indexBarTextStyle: TextStyle(fontSize: 14, color: Colors.black54),
+      indexBarTextStyle: const TextStyle(fontSize: 14, color: Colors.black54),
       itemSelectedIconWidget:
           Icon(Icons.done, color: Theme.of(context).primaryColor, size: 16),
       itemSelectedTextStyle: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
           color: Theme.of(context).primaryColor),
-      itemUnSelectedTextStyle: TextStyle(fontSize: 14, color: Colors.black54),
+      itemUnSelectedTextStyle:
+          const TextStyle(fontSize: 14, color: Colors.black54),
       initialAddress: initData,
       cityPickerListener: this,
     );
@@ -140,7 +145,7 @@ class HomeWidgetState extends State<HomeWidget>
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('选择颜色'),
+              title: const Text('选择颜色'),
               content: SingleChildScrollView(
                 child: BlockPicker(
                   pickerColor: _themeColor,
@@ -160,8 +165,8 @@ class HomeWidgetState extends State<HomeWidget>
       child: Container(
         color: _themeColor,
         width: double.infinity,
-        padding: EdgeInsets.all(10),
-        margin: EdgeInsets.fromLTRB(80, 10, 80, 10),
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(80, 10, 80, 10),
       ),
     );
   }
@@ -173,7 +178,7 @@ class HomeWidgetState extends State<HomeWidget>
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('选择颜色'),
+              title: const Text('选择颜色'),
               content: SingleChildScrollView(
                 child: BlockPicker(
                   pickerColor: _backgroundColor,
@@ -191,8 +196,8 @@ class HomeWidgetState extends State<HomeWidget>
       child: Container(
         color: _backgroundColor,
         width: double.infinity,
-        padding: EdgeInsets.all(10),
-        margin: EdgeInsets.fromLTRB(80, 10, 80, 10),
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(80, 10, 80, 10),
       ),
     );
   }
@@ -209,14 +214,14 @@ class HomeWidgetState extends State<HomeWidget>
             divisions: 100,
             activeColor: Theme.of(context).primaryColor,
             inactiveColor: Colors.grey,
-            onChanged: (double) {
+            onChanged: (d) {
               setState(() {
-                _opacity = double.toDouble();
+                _opacity = d.toDouble();
               });
             },
           ),
         ),
-        Text("${_opacity.toStringAsFixed(2)}")
+        Text(_opacity.toStringAsFixed(2))
       ],
     );
   }
@@ -247,14 +252,14 @@ class HomeWidgetState extends State<HomeWidget>
             divisions: 100,
             activeColor: Theme.of(context).primaryColor,
             inactiveColor: Colors.grey,
-            onChanged: (double) {
+            onChanged: (d) {
               setState(() {
-                _height = double.toDouble();
+                _height = d.toDouble();
               });
             },
           ),
         ),
-        Text("${_height.toStringAsFixed(2)}")
+        Text(_height.toStringAsFixed(2))
       ],
     );
   }
@@ -271,14 +276,14 @@ class HomeWidgetState extends State<HomeWidget>
             divisions: 100,
             activeColor: Theme.of(context).primaryColor,
             inactiveColor: Colors.grey,
-            onChanged: (double) {
+            onChanged: (d) {
               setState(() {
-                _corner = double.toDouble();
+                _corner = d.toDouble();
               });
             },
           ),
         ),
-        Text("${_corner.toStringAsFixed(2)}")
+        Text(_corner.toStringAsFixed(2))
       ],
     );
   }
@@ -301,7 +306,7 @@ class HomeWidgetState extends State<HomeWidget>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('城市选择器'),
+        title: const Text('城市选择器'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: SingleChildScrollView(
@@ -316,7 +321,7 @@ class HomeWidgetState extends State<HomeWidget>
                   show(_selectProvince);
                 },
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
                   child: Text(_addressProvince),
                 ),
               ),
@@ -330,7 +335,7 @@ class HomeWidgetState extends State<HomeWidget>
                   show(_selectCity);
                 },
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
                   child: Text(_addressCity),
                 ),
               ),
@@ -344,7 +349,7 @@ class HomeWidgetState extends State<HomeWidget>
                   show(_selectArea);
                 },
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
                   child: Text(_addressArea),
                 ),
               ),
@@ -358,7 +363,7 @@ class HomeWidgetState extends State<HomeWidget>
                   show(_selectStreet);
                 },
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
                   child: Text(_addressStreet),
                 ),
               ),
@@ -382,7 +387,7 @@ class HomeWidgetState extends State<HomeWidget>
     debugPrint("onDataLoad ---> $index $name");
 
     if (index == 0) {
-      await Future.delayed(Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 200));
       return HttpUtils.getCityData("");
     } else {
       if (_currentType == 0) {
