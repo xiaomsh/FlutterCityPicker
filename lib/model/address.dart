@@ -14,12 +14,4 @@ class AddressNode {
     this.code,
     this.letter,
   });
-
-  factory AddressNode.fromJson(Map<String, dynamic> json) {
-    return AddressNode(
-      name: json["name"].toString(),
-      code: json["code"].toString(),
-      letter: json["letter"].toString(),
-    );
-  }
 }

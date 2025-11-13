@@ -1,8 +1,8 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=D:\ProgramFiles\flutter
-FLUTTER_APPLICATION_PATH=D:\Projects\Flutter\FlutterCityPicker\example
+FLUTTER_ROOT=/Users/gongsi/Desktop/sdk/flutter
+FLUTTER_APPLICATION_PATH=/Users/gongsi/Desktop/project/flutter/FlutterCityPicker/example
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=lib\main.dart
+FLUTTER_TARGET=lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=1

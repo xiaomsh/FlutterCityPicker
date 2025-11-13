@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_city_picker/city_picker.dart';
-import 'package:flutter_city_picker/model/address.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
-import 'http/http_util.dart';
+import 'data/load_data.dart';
+import 'data/model.dart';
 import 'provider/theme_provider.dart';
 import 'view/item_text.dart';
 
@@ -29,11 +29,14 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primaryColor: color,
-              dialogBackgroundColor: Colors.white,
+              dialogTheme: const DialogThemeData(
+                backgroundColor: Colors.white,
+              ),
               bottomSheetTheme: BottomSheetThemeData(
-                  constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width,
-              )),
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width,
+                ),
+              ),
             ),
             home: const HomeWidget(),
           );
@@ -52,7 +55,7 @@ class HomeWidget extends StatefulWidget {
 
 class HomeWidgetState extends State<HomeWidget>
     with SingleTickerProviderStateMixin
-    implements CityPickerListener {
+    implements CityPickerListener<MyData> {
   AnimationController? _animationController;
   String _addressProvince = "请选择省";
   String _addressCity = "请选择市";
@@ -65,10 +68,10 @@ class HomeWidgetState extends State<HomeWidget>
   double _corner = 20;
   bool _dismissible = true;
   bool _showTabIndicator = true;
-  List<AddressNode> _selectProvince = [];
-  List<AddressNode> _selectCity = [];
-  List<AddressNode> _selectArea = [];
-  List<AddressNode> _selectStreet = [];
+  List<MyData> _selectProvince = [];
+  List<MyData> _selectCity = [];
+  List<MyData> _selectArea = [];
+  List<MyData> _selectStreet = [];
 
   /// 0: 省
   /// 1: 市
@@ -86,7 +89,7 @@ class HomeWidgetState extends State<HomeWidget>
     );
   }
 
-  void show(List<AddressNode> initData) {
+  void show(List<MyData> initData) {
     CityPicker.show(
       context: context,
       animController: _animationController,
@@ -125,14 +128,20 @@ class HomeWidgetState extends State<HomeWidget>
       indexBarItemHeight: 20,
       indexBarBackgroundColor: Colors.black12,
       indexBarTextStyle: const TextStyle(fontSize: 14, color: Colors.black54),
-      itemSelectedIconWidget:
-          Icon(Icons.done, color: Theme.of(context).primaryColor, size: 16),
+      itemSelectedIconWidget: Icon(
+        Icons.done,
+        color: Theme.of(context).primaryColor,
+        size: 16,
+      ),
       itemSelectedTextStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).primaryColor),
-      itemUnSelectedTextStyle:
-          const TextStyle(fontSize: 14, color: Colors.black54),
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
+      itemUnSelectedTextStyle: const TextStyle(
+        fontSize: 14,
+        color: Colors.black54,
+      ),
       initialAddress: initData,
       cityPickerListener: this,
     );
@@ -153,8 +162,10 @@ class HomeWidgetState extends State<HomeWidget>
                     setState(() {
                       _themeColor = color;
                     });
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .setTheme(color);
+                    Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).setTheme(color);
                   },
                 ),
               ),
@@ -221,23 +232,24 @@ class HomeWidgetState extends State<HomeWidget>
             },
           ),
         ),
-        Text(_opacity.toStringAsFixed(2))
+        Text(_opacity.toStringAsFixed(2)),
       ],
     );
   }
 
   Widget _buildDismissible() {
     return Container(
-        alignment: Alignment.centerRight,
-        child: Switch(
-          value: _dismissible,
-          activeColor: Theme.of(context).primaryColor,
-          onChanged: (bool val) {
-            setState(() {
-              _dismissible = !_dismissible;
-            });
-          },
-        ));
+      alignment: Alignment.centerRight,
+      child: Switch(
+        value: _dismissible,
+        activeThumbColor: Theme.of(context).primaryColor,
+        onChanged: (bool val) {
+          setState(() {
+            _dismissible = !_dismissible;
+          });
+        },
+      ),
+    );
   }
 
   Widget _buildHeight() {
@@ -259,7 +271,7 @@ class HomeWidgetState extends State<HomeWidget>
             },
           ),
         ),
-        Text(_height.toStringAsFixed(2))
+        Text(_height.toStringAsFixed(2)),
       ],
     );
   }
@@ -283,23 +295,24 @@ class HomeWidgetState extends State<HomeWidget>
             },
           ),
         ),
-        Text(_corner.toStringAsFixed(2))
+        Text(_corner.toStringAsFixed(2)),
       ],
     );
   }
 
   Widget _buildIndicator() {
     return Container(
-        alignment: Alignment.centerRight,
-        child: Switch(
-          value: _showTabIndicator,
-          activeColor: Theme.of(context).primaryColor,
-          onChanged: (bool val) {
-            setState(() {
-              _showTabIndicator = !_showTabIndicator;
-            });
-          },
-        ));
+      alignment: Alignment.centerRight,
+      child: Switch(
+        value: _showTabIndicator,
+        activeThumbColor: Theme.of(context).primaryColor,
+        onChanged: (bool val) {
+          setState(() {
+            _showTabIndicator = !_showTabIndicator;
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -382,13 +395,10 @@ class HomeWidgetState extends State<HomeWidget>
   }
 
   @override
-  Future<List<AddressNode>> onDataLoad(
-      int index, String code, String name) async {
-    debugPrint("onDataLoad ---> $index $name");
-
+  Future<List<MyData>> onDataLoad(int index, MyData? data) async {
+    final d = await DataUtils.getDataFromAssets(data?.code);
     if (index == 0) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      return HttpUtils.getCityData("");
+      return d;
     } else {
       if (_currentType == 0) {
         return Future.value([]);
@@ -396,20 +406,23 @@ class HomeWidgetState extends State<HomeWidget>
         if (index == 2) {
           return Future.value([]);
         }
-        return HttpUtils.getCityData(name);
+        return d;
       } else if (_currentType == 2) {
         if (index == 3) {
           return Future.value([]);
         }
-        return HttpUtils.getCityData(name);
+        return d;
       } else {
-        return HttpUtils.getCityData(name);
+        if (index == 4) {
+          return Future.value([]);
+        }
+        return d;
       }
     }
   }
 
   @override
-  void onFinish(List<AddressNode> data) {
+  void onFinish(List<MyData> data) {
     debugPrint("onFinish");
 
     String add = "";

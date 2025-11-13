@@ -8,14 +8,14 @@ import '../model/section_city.dart';
 import 'listview_section.dart';
 
 /// 城市列表组件
-class ItemWidget extends StatefulWidget {
+class ItemWidget<T extends AddressNode> extends StatefulWidget {
   final double? height;
 
   /// 当前列表的索引
   final int? index;
 
   /// 数据
-  final List<SectionCity>? list;
+  final List<SectionCity<T>>? list;
 
   /// 选中 tab
   final String? title;
@@ -96,17 +96,17 @@ class ItemWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => ItemWidgetState();
+  State<StatefulWidget> createState() => ItemWidgetState<T>();
 }
 
-class ItemWidgetState extends State<ItemWidget>
+class ItemWidgetState<T extends AddressNode> extends State<ItemWidget<T>>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
 
   late String? _title = widget.title ?? widget.selectText ?? "请选择";
 
   // 列表数据
-  List<SectionCity> _mList = [];
+  List<SectionCity<T>> _mList = [];
 
   @override
   void initState() {
@@ -127,7 +127,7 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   @override
-  void didUpdateWidget(covariant ItemWidget oldWidget) {
+  void didUpdateWidget(covariant ItemWidget<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.list != widget.list) {
@@ -158,8 +158,7 @@ class ItemWidgetState extends State<ItemWidget>
 
   /// 获取索引
   int _getIndex(double offset) {
-    double h =
-        (widget.height! - (_mList.length * widget.indexBarItemHeight! + 4)) / 2;
+    double h = (widget.height! - (_mList.length * widget.indexBarItemHeight! + 4)) / 2;
     int index = (offset - h) ~/ widget.indexBarItemHeight!;
     return min(index, _mList.length - 1);
   }
@@ -180,12 +179,12 @@ class ItemWidgetState extends State<ItemWidget>
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: widget.backgroundColor ?? Theme.of(context).dialogBackgroundColor,
+      color: widget.backgroundColor ?? Theme.of(context).dialogTheme.backgroundColor,
       child: Stack(
         children: [
           ExpandableListView(
             controller: _scrollController,
-            builder: SliverExpandableChildDelegate<AddressNode, SectionCity>(
+            builder: SliverExpandableChildDelegate<T, SectionCity<T>>(
               sectionList: _mList,
               headerBuilder: (context, sectionIndex, index) {
                 return Container(
@@ -198,7 +197,7 @@ class ItemWidgetState extends State<ItemWidget>
                       color: widget.itemHeadLineColor ?? Colors.black38,
                     )),
                     color: widget.itemHeadBackgroundColor ??
-                        Theme.of(context).dialogBackgroundColor,
+                        Theme.of(context).dialogTheme.backgroundColor,
                   ),
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(left: widget.paddingLeft!),
@@ -210,7 +209,7 @@ class ItemWidgetState extends State<ItemWidget>
                 );
               },
               itemBuilder: (context, sectionIndex, itemIndex, index) {
-                AddressNode city = _mList[sectionIndex].data![itemIndex];
+                T city = _mList[sectionIndex].data![itemIndex];
                 bool isSelect = city.name == _title;
                 return InkWell(
                   onTap: () {
@@ -218,8 +217,7 @@ class ItemWidgetState extends State<ItemWidget>
                     if (mounted) {
                       setState(() {});
                     }
-                    widget.itemClickListener!
-                        .onItemClick(widget.index!, city.name!, city.code!);
+                    widget.itemClickListener!.onItemClick(widget.index!, city);
                   },
                   child: Container(
                     width: double.infinity,
@@ -230,9 +228,7 @@ class ItemWidgetState extends State<ItemWidget>
                       Offstage(
                         offstage: !isSelect,
                         child: widget.itemSelectedIconWidget ??
-                            Icon(Icons.done,
-                                color: Theme.of(context).primaryColor,
-                                size: 16),
+                            Icon(Icons.done, color: Theme.of(context).primaryColor, size: 16),
                       ),
                       SizedBox(width: isSelect ? 3 : 0),
                       Text(city.name!,
@@ -319,24 +315,17 @@ class ItemWidgetState extends State<ItemWidget>
       decoration: BoxDecoration(
         color: widget.indexBarBackgroundColor,
         borderRadius: BorderRadius.only(
-          topLeft: (type == 1 || type == 2)
-              ? const Radius.circular(50)
-              : const Radius.circular(0),
-          topRight: (type == 1 || type == 2)
-              ? const Radius.circular(50)
-              : const Radius.circular(0),
-          bottomLeft: (type == 1 || type == 3)
-              ? const Radius.circular(50)
-              : const Radius.circular(0),
-          bottomRight: (type == 1 || type == 3)
-              ? const Radius.circular(50)
-              : const Radius.circular(0),
+          topLeft: (type == 1 || type == 2) ? const Radius.circular(50) : const Radius.circular(0),
+          topRight: (type == 1 || type == 2) ? const Radius.circular(50) : const Radius.circular(0),
+          bottomLeft:
+              (type == 1 || type == 3) ? const Radius.circular(50) : const Radius.circular(0),
+          bottomRight:
+              (type == 1 || type == 3) ? const Radius.circular(50) : const Radius.circular(0),
         ),
       ),
       child: Text(
         _mList[index].letter!,
-        style: widget.indexBarTextStyle ??
-            const TextStyle(fontSize: 14, color: Colors.black54),
+        style: widget.indexBarTextStyle ?? const TextStyle(fontSize: 14, color: Colors.black54),
       ),
     );
   }

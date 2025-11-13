@@ -6,6 +6,8 @@
 由于地址选择的数据来源会更新，为了统一，在后台配置一份城市数据，前端获取，否则各个平台都配置一份数据，维护会很麻烦，而且有可能每个平台城市的数据结构都不一样。
 本库就是由此而来，数据从后台实时获取，只要解析成固定的数据结构就可以
 
+新版本 2.2.0 支持读取本地文件，但是不建议，因为会增加包体积，而且还要维护，因为有人提的多，所以在此给个 demo
+
 ### Demo
 [web 预览](https://xiaomsh.github.io/FlutterCityPicker/)
 
@@ -17,7 +19,7 @@
 
 ```
 dependencies:
-    flutter_city_picker: ^2.1.1
+    flutter_city_picker: ^2.2.0
 ```
 
 #### 使用方法
@@ -123,12 +125,12 @@ dependencies:
     <你的组件> implements CityPickerListener
 
     @override
-    Future<List<AddressNode>> onDataLoad(int index, String code, String name) async {
+    Future<List<T>> onDataLoad(int index, T data) async {
       return 返回城市数据;
     }
 
     @override
-    void onFinish(List<AddressNode> data) {
+    void onFinish(List<T> data) {
       // 最终回调，返回省市区的代码和名称
     }
 ```

@@ -11,7 +11,7 @@ import 'view/city_picker.dart';
 /// 外部调用
 class CityPicker {
   /// 展示
-  static void show({
+  static void show<T extends AddressNode>({
     required BuildContext context,
     AnimationController? animController,
     // 背景透明度
@@ -77,16 +77,16 @@ class CityPicker {
     // 列表未选中的文字样式
     TextStyle? itemUnSelectedTextStyle,
     // 地址初始值
-    List<AddressNode>? initialAddress,
+    List<T>? initialAddress,
     // 地址选择器监听事件
-    required CityPickerListener cityPickerListener,
+    required CityPickerListener<T> cityPickerListener,
   }) {
     showModalBottomSheet<void>(
         context: context,
         backgroundColor: backgroundColor,
         isScrollControlled: true,
         isDismissible: dismissible,
-        barrierColor: Colors.black.withOpacity(opacity),
+        barrierColor: Colors.black.withValues(alpha: opacity),
         transitionAnimationController: animController,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -95,7 +95,7 @@ class CityPicker {
           ),
         ),
         builder: (BuildContext context) {
-          return CityPickerWidget(
+          return CityPickerWidget<T>(
             height: height,
             titleHeight: titleHeight,
             corner: corner,

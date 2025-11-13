@@ -11,7 +11,7 @@ import '../view/item_widget.dart';
 ///
 /// 从服务器获取数据
 ///
-class CityPickerWidget extends StatefulWidget {
+class CityPickerWidget<T extends AddressNode> extends StatefulWidget {
   /// 组件高度
   final double? height;
 
@@ -100,10 +100,10 @@ class CityPickerWidget extends StatefulWidget {
   final TextStyle? itemUnSelectedTextStyle;
 
   /// 初始值
-  final List<AddressNode>? initialAddress;
+  final List<T>? initialAddress;
 
   /// 监听事件
-  final CityPickerListener? cityPickerListener;
+  final CityPickerListener<T> cityPickerListener;
 
   const CityPickerWidget({
     Key? key,
@@ -141,17 +141,17 @@ class CityPickerWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => CityPickerState();
+  State<StatefulWidget> createState() => CityPickerState<T>();
 }
 
-class CityPickerState extends State<CityPickerWidget>
+class CityPickerState<T extends AddressNode> extends State<CityPickerWidget<T>>
     with TickerProviderStateMixin
-    implements ItemClickListener {
+    implements ItemClickListener<T> {
   TabController? _tabController;
   PageController? _pageController;
 
   // 列表数据
-  final Map<int, List<SectionCity>> _mData = {};
+  final Map<int, List<SectionCity<T>>> _mData = {};
 
   // 中间 tab
   final List<TabTitle> _myTabs = [];
@@ -160,7 +160,7 @@ class CityPickerState extends State<CityPickerWidget>
   int _currentIndex = 0;
 
   // 已选择的数据
-  final List<AddressNode> _selectData = [];
+  final List<T> _selectData = [];
 
   // 防止重复点击
   bool _isClick = false;
@@ -175,29 +175,26 @@ class CityPickerState extends State<CityPickerWidget>
       for (int i = 0; i < widget.initialAddress!.length; i++) {
         _myTabs.add(TabTitle(index: i, title: widget.initialAddress![i].name));
         if (i != widget.initialAddress!.length - 1) {
-          _selectData.add(AddressNode(
-              code: widget.initialAddress![i].code,
-              name: widget.initialAddress![i].name));
+          _selectData.add(widget.initialAddress![i]);
         }
       }
-      _tabController = TabController(
-          vsync: this, length: _myTabs.length, initialIndex: _currentIndex);
+      _tabController =
+          TabController(vsync: this, length: _myTabs.length, initialIndex: _currentIndex);
       _pageController = PageController(initialPage: _currentIndex);
       for (int i = 0; i < widget.initialAddress!.length; i++) {
         if (i == 0) {
-          widget.cityPickerListener!.onDataLoad(i, "", "").then((value) {
-            List<SectionCity> list = sortCity(value);
+          widget.cityPickerListener.onDataLoad(i, null).then((List<T> value) {
+            List<SectionCity<T>> list = sortCity(value);
             _mData[i] = list;
             if (mounted) {
               setState(() {});
             }
           });
         } else {
-          widget.cityPickerListener!
-              .onDataLoad(i, widget.initialAddress![i - 1].code!,
-                  widget.initialAddress![i - 1].name!)
-              .then((value) {
-            List<SectionCity> list = sortCity(value);
+          widget.cityPickerListener
+              .onDataLoad(i, widget.initialAddress![i - 1])
+              .then((List<T> value) {
+            List<SectionCity<T>> list = sortCity(value);
             _mData[i] = list;
             if (mounted) {
               setState(() {});
@@ -206,22 +203,19 @@ class CityPickerState extends State<CityPickerWidget>
         }
       }
     } else {
-      widget.cityPickerListener!
-          .onDataLoad(_currentIndex, "", "")
-          .then((value) {
-        List<SectionCity> list = sortCity(value);
+      widget.cityPickerListener.onDataLoad(_currentIndex, null).then((List<T> value) {
+        List<SectionCity<T>> list = sortCity(value);
         if (list.isEmpty) {
-          widget.cityPickerListener!.onFinish(_selectData);
-          Navigator.pop(context);
+          widget.cityPickerListener.onFinish(_selectData);
+          if (mounted) {
+            Navigator.pop(context);
+          }
         } else {
           _mData[_currentIndex] = list;
           if (mounted) {
-            _myTabs.add(TabTitle(
-                index: _currentIndex, title: widget.selectText ?? "请选择"));
-            _tabController = TabController(
-                vsync: this,
-                length: _myTabs.length,
-                initialIndex: _currentIndex);
+            _myTabs.add(TabTitle(index: _currentIndex, title: widget.selectText ?? "请选择"));
+            _tabController =
+                TabController(vsync: this, length: _myTabs.length, initialIndex: _currentIndex);
             if (mounted) {
               setState(() {});
             }
@@ -243,19 +237,19 @@ class CityPickerState extends State<CityPickerWidget>
   }
 
   /// 排序数据
-  List<SectionCity> sortCity(List<AddressNode> data) {
+  List<SectionCity<T>> sortCity(List<T> data) {
     // 先排序
     data.sort((a, b) => a.letter!.compareTo(b.letter!));
     // 组装数据
-    List<SectionCity> sectionList = [];
+    List<SectionCity<T>> sectionList = [];
     String? letter = "A";
-    List<AddressNode> cityList2 = [];
+    List<T> cityList2 = [];
     for (int i = 0; i < data.length; i++) {
       if (letter == data[i].letter) {
         cityList2.add(data[i]);
       } else {
         if (cityList2.isNotEmpty) {
-          sectionList.add(SectionCity(letter: letter, data: cityList2));
+          sectionList.add(SectionCity<T>(letter: letter, data: cityList2));
         }
         cityList2 = [];
         cityList2.add(data[i]);
@@ -263,7 +257,7 @@ class CityPickerState extends State<CityPickerWidget>
       }
       if (i == data.length - 1) {
         if (cityList2.isNotEmpty) {
-          sectionList.add(SectionCity(letter: letter, data: cityList2));
+          sectionList.add(SectionCity<T>(letter: letter, data: cityList2));
         }
       }
     }
@@ -271,7 +265,7 @@ class CityPickerState extends State<CityPickerWidget>
   }
 
   @override
-  void onItemClick(int tabIndex, String name, String code) {
+  void onItemClick(int tabIndex, T data) {
     if (_isClick) {
       return;
     }
@@ -283,34 +277,32 @@ class CityPickerState extends State<CityPickerWidget>
     if (_selectData.length >= _currentIndex) {
       _selectData.removeRange(_currentIndex - 1, _selectData.length);
       _myTabs.removeRange(_currentIndex, _myTabs.length);
-      _tabController = TabController(
-          vsync: this, length: _myTabs.length, initialIndex: _currentIndex - 1);
+      _tabController =
+          TabController(vsync: this, length: _myTabs.length, initialIndex: _currentIndex - 1);
       if (mounted) {
         setState(() {});
       }
     }
 
-    _selectData.insert(_currentIndex - 1, AddressNode(code: code, name: name));
-    _myTabs.elementAt(_currentIndex - 1).title =
-        _selectData[_currentIndex - 1].name;
+    _selectData.insert(_currentIndex - 1, data);
+    _myTabs.elementAt(_currentIndex - 1).title = data.name!;
 
-    widget.cityPickerListener!
-        .onDataLoad(_currentIndex, code, name)
-        .then((value) {
-      List<SectionCity> list = sortCity(value);
+    widget.cityPickerListener.onDataLoad(_currentIndex, data).then((value) {
+      List<SectionCity<T>> list = sortCity(value);
       if (list.isEmpty) {
         _isClick = false;
         if (mounted) {
           setState(() {});
         }
-        widget.cityPickerListener!.onFinish(_selectData);
-        Navigator.pop(context);
+        widget.cityPickerListener.onFinish(_selectData);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } else {
         _mData[_currentIndex] = list;
-        _myTabs.add(
-            TabTitle(index: _currentIndex, title: widget.selectText ?? "请选择"));
-        _tabController = TabController(
-            vsync: this, length: _myTabs.length, initialIndex: _currentIndex);
+        _myTabs.add(TabTitle(index: _currentIndex, title: widget.selectText ?? "请选择"));
+        _tabController =
+            TabController(vsync: this, length: _myTabs.length, initialIndex: _currentIndex);
         _pageController!.animateToPage(_currentIndex,
             duration: const Duration(milliseconds: 10), curve: Curves.linear);
         _isClick = false;
@@ -330,10 +322,7 @@ class CityPickerState extends State<CityPickerWidget>
             _topTextWidget(),
             Expanded(
               child: Column(
-                children: [
-                  _middleTabWidget(),
-                  Expanded(child: _bottomListWidget())
-                ],
+                children: [_middleTabWidget(), Expanded(child: _bottomListWidget())],
               ),
             )
           ],
@@ -345,8 +334,7 @@ class CityPickerState extends State<CityPickerWidget>
     return Container(
       height: widget.titleHeight,
       decoration: BoxDecoration(
-        color:
-            widget.backgroundColor ?? Theme.of(context).dialogBackgroundColor,
+        color: widget.backgroundColor ?? Theme.of(context).dialogTheme.backgroundColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(widget.corner!),
           topRight: Radius.circular(widget.corner!),
@@ -382,7 +370,7 @@ class CityPickerState extends State<CityPickerWidget>
     return Container(
       width: double.infinity,
       height: widget.tabHeight,
-      color: widget.backgroundColor ?? Theme.of(context).dialogBackgroundColor,
+      color: widget.backgroundColor ?? Theme.of(context).dialogTheme.backgroundColor,
       child: TabBar(
         controller: _tabController,
         onTap: (index) {
@@ -396,8 +384,7 @@ class CityPickerState extends State<CityPickerWidget>
         isScrollable: true,
         indicatorSize: TabBarIndicatorSize.tab,
         tabAlignment: TabAlignment.start,
-        padding:
-            EdgeInsets.only(left: widget.paddingLeft! - widget.tabPadding! / 2),
+        padding: EdgeInsets.only(left: widget.paddingLeft! - widget.tabPadding! / 2),
         indicatorPadding: EdgeInsets.only(
           left: widget.tabPadding! / 2,
           right: widget.tabPadding! / 2,
@@ -411,13 +398,11 @@ class CityPickerState extends State<CityPickerWidget>
             ? UnderlineTabIndicator(
                 borderSide: BorderSide(
                   width: widget.tabIndicatorHeight!,
-                  color: widget.tabIndicatorColor ??
-                      Theme.of(context).primaryColor,
+                  color: widget.tabIndicatorColor ?? Theme.of(context).primaryColor,
                 ),
               )
             : const BoxDecoration(),
-        indicatorColor:
-            widget.tabIndicatorColor ?? Theme.of(context).primaryColor,
+        indicatorColor: widget.tabIndicatorColor ?? Theme.of(context).primaryColor,
         unselectedLabelColor: widget.unselectedLabelColor ?? Colors.black54,
         labelColor: widget.selectedLabelColor ?? Theme.of(context).primaryColor,
         tabs: _myTabs.map((data) {
@@ -442,7 +427,7 @@ class CityPickerState extends State<CityPickerWidget>
         _tabController!.animateTo(_currentIndex);
       },
       children: _myTabs.map((tab) {
-        return ItemWidget(
+        return ItemWidget<T>(
           height: widget.height! - widget.titleHeight! - widget.tabHeight!,
           index: tab.index,
           list: _mData[tab.index],

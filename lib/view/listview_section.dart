@@ -811,7 +811,7 @@ class ExpandableListController extends ChangeNotifier {
   ///get pinned header index
   int get stickySectionIndex => _stickySectionIndex;
 
-  updatePercent(int sectionIndex, double percent) {
+  void updatePercent(int sectionIndex, double percent) {
     if (_percent == percent && _switchingSectionIndex == sectionIndex) {
       return;
     }

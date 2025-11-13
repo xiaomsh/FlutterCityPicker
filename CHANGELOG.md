@@ -1,3 +1,8 @@
+## 2.2.0
+
+- support local file
+- support custom data
+
 ## 2.1.1
 
 - remove divide
