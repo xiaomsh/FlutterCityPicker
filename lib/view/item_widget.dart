@@ -158,7 +158,8 @@ class ItemWidgetState<T extends AddressNode> extends State<ItemWidget<T>>
 
   /// 获取索引
   int _getIndex(double offset) {
-    double h = (widget.height! - (_mList.length * widget.indexBarItemHeight! + 4)) / 2;
+    double h =
+        (widget.height! - (_mList.length * widget.indexBarItemHeight! + 4)) / 2;
     int index = (offset - h) ~/ widget.indexBarItemHeight!;
     return min(index, _mList.length - 1);
   }
@@ -179,7 +180,8 @@ class ItemWidgetState<T extends AddressNode> extends State<ItemWidget<T>>
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: widget.backgroundColor ?? Theme.of(context).dialogTheme.backgroundColor,
+      color: widget.backgroundColor ??
+          Theme.of(context).dialogTheme.backgroundColor,
       child: Stack(
         children: [
           ExpandableListView(
@@ -228,7 +230,9 @@ class ItemWidgetState<T extends AddressNode> extends State<ItemWidget<T>>
                       Offstage(
                         offstage: !isSelect,
                         child: widget.itemSelectedIconWidget ??
-                            Icon(Icons.done, color: Theme.of(context).primaryColor, size: 16),
+                            Icon(Icons.done,
+                                color: Theme.of(context).primaryColor,
+                                size: 16),
                       ),
                       SizedBox(width: isSelect ? 3 : 0),
                       Text(city.name!,
@@ -315,17 +319,24 @@ class ItemWidgetState<T extends AddressNode> extends State<ItemWidget<T>>
       decoration: BoxDecoration(
         color: widget.indexBarBackgroundColor,
         borderRadius: BorderRadius.only(
-          topLeft: (type == 1 || type == 2) ? const Radius.circular(50) : const Radius.circular(0),
-          topRight: (type == 1 || type == 2) ? const Radius.circular(50) : const Radius.circular(0),
-          bottomLeft:
-              (type == 1 || type == 3) ? const Radius.circular(50) : const Radius.circular(0),
-          bottomRight:
-              (type == 1 || type == 3) ? const Radius.circular(50) : const Radius.circular(0),
+          topLeft: (type == 1 || type == 2)
+              ? const Radius.circular(50)
+              : const Radius.circular(0),
+          topRight: (type == 1 || type == 2)
+              ? const Radius.circular(50)
+              : const Radius.circular(0),
+          bottomLeft: (type == 1 || type == 3)
+              ? const Radius.circular(50)
+              : const Radius.circular(0),
+          bottomRight: (type == 1 || type == 3)
+              ? const Radius.circular(50)
+              : const Radius.circular(0),
         ),
       ),
       child: Text(
         _mList[index].letter!,
-        style: widget.indexBarTextStyle ?? const TextStyle(fontSize: 14, color: Colors.black54),
+        style: widget.indexBarTextStyle ??
+            const TextStyle(fontSize: 14, color: Colors.black54),
       ),
     );
   }
